@@ -1,0 +1,23 @@
+/* If using custom styles */
+body {
+    font-family: Arial, sans-serif;
+}
+input, select {
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+}
+button {
+    padding: 10px 15px;
+    background-color: #3490dc;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+button:hover {
+    background-color: #2779bd;
+}

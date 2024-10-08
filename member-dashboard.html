@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&family=Gloock&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f1ea;
+            font-family: 'Gloock', serif;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 28px;
+            color: #6a4f4b;
+        }
+        h2 {
+            font-size: 24px;
+            color: #4f3e3b;
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #d1ccc0;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #8e8d86;
+            color: white;
+        }
+        .button {
+            background-color: #8e8d86;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .button:hover {
+            background-color: #6a4f4b;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0, 0, 0, 0.5); /* Black w/ opacity */
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px; /* Could be more or less, depending on screen size */
+            border-radius: 10px;
+            text-align: center;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Add Book Modal Styles */
+        .add-book-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .add-book-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 400px;
+            border-radius: 10px;
+            text-align: left;
+        }
+        .add-book-content input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #d1ccc0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Member Dashboard</h1>
+
+        <!-- Books Section -->
+        <h2>Books</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="books-list">
+                <!-- Book items will be populated here -->
+            </tbody>
+        </table>
+
+        <div>
+            <button style="background-color: #5b7255;" class="button" onclick="openAddBookModal()">Add Book</button>
+            <button class="button" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <!-- Alert Modal -->
+    <div id="alertModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <p id="alertMessage"></p>
+        </div>
+    </div>
+
+    <!-- Add Book Modal -->
+    <div id="addBookModal" class="add-book-modal">
+        <div class="add-book-content">
+            <span class="close" onclick="closeAddBookModal()">&times;</span>
+            <h2>Add New Book</h2>
+            <input style="width: 300px;" type="text" id="newBookTitle" placeholder="Title" required>
+            <input style="width: 300px;" type="text" id="newBookAuthor" placeholder="Author" required>
+            <button style="background-color: #5b7255;" class="button" onclick="addBook()">Add Book</button>
+        </div>
+    </div>
+
+    <script>
+        const booksKey = 'books';
+
+        // Load data from local storage
+        function loadBooks() {
+            return JSON.parse(localStorage.getItem(booksKey)) || [];
+        }
+
+        // Save data to local storage
+        function saveBooks(books) {
+            localStorage.setItem(booksKey, JSON.stringify(books));
+        }
+
+        // Function to display all books
+        function displayBooks() {
+            const books = loadBooks();
+            const booksList = document.getElementById('books-list');
+            booksList.innerHTML = ''; // Clear existing rows
+
+            // Display books
+            books.forEach(book => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${book.title}</td>
+                    <td>${book.author}</td>
+                    <td>${book.isBorrowed ? 'Borrowed' : 'Available'}</td>
+                    <td>
+                        ${book.isBorrowed 
+                            ? `<button style="background-color: #ff6b6b;" class="button" onclick="returnBook('${book.title}')">Return</button>` 
+                            : `<button style="background-color: #4e6348;" class="button" onclick="borrowBook('${book.title}')">Borrow</button>`}
+                    </td>
+                `;
+                booksList.appendChild(row);
+            });
+        }
+
+        // Function to borrow a book
+        function borrowBook(title) {
+            const books = loadBooks();
+            const bookIndex = books.findIndex(book => book.title === title);
+
+            if (bookIndex !== -1) {
+                if (!books[bookIndex].isBorrowed) {
+                    books[bookIndex].isBorrowed = true; // Mark as borrowed
+                    saveBooks(books);
+                    showModal(`You borrowed "${title}".`);
+                    refreshDashboard();
+                } else {
+                    showModal(`Book "${title}" is already borrowed.`);
+                }
+            } else {
+                showModal(`Book "${title}" not found.`);
+            }
+        }
+
+        // Function to return a book
+        function returnBook(title) {
+            const books = loadBooks();
+            const bookIndex = books.findIndex(book => book.title === title);
+
+            if (bookIndex !== -1) {
+                if (books[bookIndex].isBorrowed) {
+                    books[bookIndex].isBorrowed = false; // Mark as available
+                    saveBooks(books);
+                    showModal(`You returned "${title}".`);
+                    refreshDashboard();
+                } else {
+                    showModal(`Book "${title}" was not borrowed.`);
+                }
+            } else {
+                showModal(`Book "${title}" not found.`);
+            }
+        }
+
+        // Function to refresh the dashboard
+        function refreshDashboard() {
+            displayBooks();
+        }
+
+        // Function to open the Add Book modal
+        function openAddBookModal() {
+            document.getElementById('addBookModal').style.display = 'block';
+        }
+
+        // Function to close the Add Book modal
+        function closeAddBookModal() {
+            document.getElementById('addBookModal').style.display = 'none';
+        }
+
+        // Function to add a new book
+        function addBook() {
+            const title = document.getElementById('newBookTitle').value.trim();
+            const author = document.getElementById('newBookAuthor').value.trim();
+            if (title && author) {
+                const books = loadBooks();
+                const newBook = { title, author, isBorrowed: false }; // Status false means available
+                // Check if the book already exists
+                const existingBookIndex = books.findIndex(book => book.title === title);
+                if (existingBookIndex !== -1) {
+                    showModal(`Book "${title}" already exists.`);
+                } else {
+                    books.push(newBook);
+                    saveBooks(books);
+                    closeAddBookModal();
+                    refreshDashboard();
+                    showModal(`"${title}" has been added.`);
+                }
+            } else {
+                showModal('Please fill in both fields.');
+            }
+        }
+
+        // Function to show the modal with a message
+        function showModal(message) {
+            document.getElementById('alertMessage').innerText = message;
+            document.getElementById('alertModal').style.display = 'block';
+        }
+
+        // Function to close the modal
+        function closeModal() {
+            document.getElementById('alertModal').style.display = 'none';
+        }
+
+        // Logout function (example)
+        function logout() {
+            window.location.href = 'login.html'
+        }
+
+        // Initialize the dashboard on page load
+        window.onload = function() {
+            displayBooks();
+        }
+    </script>
+
+</body>
+</html>
