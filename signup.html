@@ -75,7 +75,6 @@
             top:0;
             width: 40%; /* Full width */
             height: 40%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
         }
         .modal-content {
             background-color: #fefefe;
@@ -149,7 +148,8 @@
             const newUser = {
                 username: username,
                 password: password,
-                role: role
+                role: role,
+                isDeleted: false
             };
 
             // Add new user to records and save to localStorage
@@ -171,7 +171,12 @@
         function closeModal() {
             document.getElementById('alertModal').style.display = 'none';
         }
+
+
+        console.log(localStorage.getItem('records'))
+
     </script>
 
+    
 </body>
 </html>

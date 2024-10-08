@@ -75,7 +75,6 @@
             top:0;
             width: 40%; /* Full width */
             height: 40%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
         }
         .modal-content {
             background-color: #fefefe;
@@ -131,14 +130,15 @@
         function loginUser() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
+            
 
             // Check if there are any records
             if (records.length === 0) {
                 showModal('No users found. Please sign up first.');
                 return;
             }
-
-            const user = records.find(record => record.username === username && record.password === password);
+            debugger
+            const user = records.find(record => record.username === username && record.password === password && record.isDeleted===false);
             
             if (user) {
                 if (user.role.toLowerCase() === 'librarian') {
